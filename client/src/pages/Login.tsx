@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { MnemonicInput } from '@/components/display'
 import { useAuth } from '@/context/auth'
 import { contractMgr } from '@/game/data_mgr/contract_mgr'
+import { ethers } from 'ethers'
 
 export default function Login() {
   const [mnemonic, setMnemonic] = useState<string>('')
@@ -27,12 +28,11 @@ export default function Login() {
         nickName = inputRef.current.value
       }
       const realMnemonic = mnemonicParam ? mnemonicParam : mnemonic
-      chainManager.generateWallet(realMnemonic).then((wallet) => {
-        const user = login(undefined, realMnemonic, wallet, nickName)
-        localStorage.setItem('account', user.account)
-        contractMgr.reload(wallet.privateKey)
-        navigate('/room_list')
-      })
+      const wallet = ethers.Wallet.fromPhrase(realMnemonic)
+      const user = login(undefined, realMnemonic, wallet, nickName)
+      localStorage.setItem('account', user.account)
+      contractMgr.reload(wallet.privateKey)
+      navigate('/room_list')
     } catch (error) {
       console.error('登录失败:', error)
       setStatus('无效的助记词')
