@@ -6,8 +6,8 @@ import { useAuth } from '@/context/auth';
 import Logged from './logged';
 import { userManager } from '@/lib/user';
 import { isNotEmpty } from '@/util/util';
-import { chainManager } from '@/lib/chain';
 import { contractMgr } from '@/game/data_mgr/contract_mgr';
+import { ethers } from 'ethers';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -18,12 +18,11 @@ export default function Header() {
     const account = localStorage.getItem('account');
     const user = isNotEmpty(account) ? userManager.getUserById(account) : undefined;
     if (user) {
-      chainManager.generateWallet(user.mnemonic).then((wallet) => {
-        login(user, user.mnemonic, wallet)
-        contractMgr.reload(wallet.privateKey)
-        navigate('/room_list');
-        return
-      })
+      const wallet = ethers.Wallet.fromPhrase(user.mnemonic)
+      login(user, user.mnemonic, wallet)
+      contractMgr.reload(wallet.privateKey)
+      navigate('/room_list');
+      return
     }
 
     navigate("/login");

@@ -1,8 +1,6 @@
 import '@/globals.css'
 import { createContext, useContext, useState, ReactNode, FC, JSX } from 'react';
 import { User, userManager } from '@/lib/user'
-import { ChainType } from '@/lib/chain';
-import WebSocketManager from '@/util/ws';
 
 interface AuthContextType {
   user: User | undefined;
@@ -10,8 +8,6 @@ interface AuthContextType {
   login: (user: User | undefined, mnemonic: string, wallet: Wallet, accountName?: string) => User;
   logout: () => void;
   shortWallet: () => JSX.Element | string;
-  ws: WebSocketManager | null
-  setWs: (ws: WebSocketManager | null) => void
 }
 
 export type Wallet = {
@@ -27,14 +23,12 @@ interface AuthProviderProps {
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [wallet, setWallet] = useState<Wallet | undefined>(undefined)
   const [user, setUser] = useState<User | undefined>(undefined)
-  const [ws, setWs] = useState<WebSocketManager | null>(null)
   const login = (user: User | undefined, mnemonic: string, wallet: Wallet, accountName?: string): User => {
     let localUser = user
     if (localUser === undefined) {
       localUser = {
         mnemonic: mnemonic,
         account: "account" + (userManager.size() + 1),
-        chain: ChainType.MONAD_TEST
       }
       if (accountName !== undefined && accountName.length > 0) {
         localUser.account = accountName
@@ -49,8 +43,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setWallet(undefined)
     setUser(undefined)
-    ws?.close();
-    setWs(null); // 清除 WebSocket 状态
   };
 
   const shortWallet = (): JSX.Element | string => {
@@ -73,8 +65,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       logout,
       user,
       shortWallet,
-      ws,
-      setWs
     }}>
       {children}
     </AuthContext.Provider>

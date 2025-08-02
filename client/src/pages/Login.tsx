@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { MnemonicInput } from '@/components/display'
 import { useAuth } from '@/context/auth'
-import { chainManager } from '@/lib/chain'
 import { contractMgr } from '@/game/data_mgr/contract_mgr'
 
 export default function Login() {
